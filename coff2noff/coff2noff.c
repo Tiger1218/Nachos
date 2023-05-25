@@ -1,17 +1,17 @@
-/* coff2noff.c 
+/* coff2noff.c
  *
  * This program reads in a COFF format file, and outputs a NOFF format file.
  * The NOFF format is essentially just a simpler version of the COFF file,
  * recording where each segment is in the NOFF file, and where it is to
  * go in the virtual address space.
- * 
+ *
  * Assumes coff file is linked with either
- *	gld with -N -Ttext 0 
+ *	gld with -N -Ttext 0
  * 	ld with  -N -T 0
  * to make sure the object file has no shared text.
  *
  * Also assumes that the COFF file has at most 3 segments:
- *	.text	-- read-only executable instructions 
+ *	.text	-- read-only executable instructions
  *	.data	-- initialized data
  *	.bss/.sbss -- uninitialized data (should be zero'd on program startup)
 #ifdef RDATA
@@ -21,11 +21,11 @@
  *
  *
  * Copyright (c) 1992-1993 The Regents of the University of California.
- * All rights reserved.  See copyright.h for copyright notice and limitation 
+ * All rights reserved.  See copyright.h for copyright notice and limitation
  * of liability and disclaimer of warranty provisions.
  */
 
-/* 
+/*
  * Modified at UW by KMS, August, 1997
  *   The modified program always writes the NOFF header in little-endian
  *    format, rather than host format.  This is to avoid the problem
@@ -41,6 +41,7 @@
  *    host or a big-endian host.
  */
 
+
 #define _POSIX_SOURCE 1
 
 #ifdef HAVE_CONFIG_H
@@ -48,7 +49,7 @@
 #endif
 
 #define MAIN
-#include "copyright.h" 
+#include "copyright.h"
 #undef MAIN
 
 #include "coff.h"
@@ -79,7 +80,7 @@ WordToHost(unsigned int word) {
 	 result |= (word << 8) & 0x00ff0000;
 	 result |= (word << 24) & 0xff000000;
 	 return result;
-#else 
+#else
 	 return word;
 #endif /* HOST_IS_BIG_ENDIAN */
 }
@@ -91,7 +92,7 @@ ShortToHost(unsigned short shortword) {
 	 result = (shortword << 8) & 0xff00;
 	 result |= (shortword >> 8) & 0x00ff;
 	 return result;
-#else 
+#else
 	 return shortword;
 #endif /* HOST_IS_BIG_ENDIAN */
 }
@@ -107,7 +108,7 @@ ShortToMachine(unsigned short shortword) { return ShortToHost(shortword); }
 // the NOFF header to little-endian format
 // on a little-endian machine, where the header is already
 // in little-endian format, it does nothing
-static void 
+static void
 SwapHeader (NoffHeader *noffH)
 {
     noffH->noffMagic = WordToHost(noffH->noffMagic);
@@ -116,9 +117,9 @@ SwapHeader (NoffHeader *noffH)
     noffH->code.inFileAddr = WordToHost(noffH->code.inFileAddr);
 #ifdef RDATA
     noffH->readonlyData.size = WordToHost(noffH->readonlyData.size);
-    noffH->readonlyData.virtualAddr = 
+    noffH->readonlyData.virtualAddr =
            WordToHost(noffH->readonlyData.virtualAddr);
-    noffH->readonlyData.inFileAddr = 
+    noffH->readonlyData.inFileAddr =
            WordToHost(noffH->readonlyData.inFileAddr);
 #endif
     noffH->initData.size = WordToHost(noffH->initData.size);
@@ -169,7 +170,7 @@ main (int argc, char **argv)
 	fprintf(stderr, "Usage: %s <coffFileName> <noffFileName>\n", argv[0]);
 	exit(1);
     }
-    
+
 /* open the COFF file (input) */
     fdIn = open(argv[1], O_RDONLY, 0);
     if (fdIn == -1) {
@@ -184,17 +185,17 @@ main (int argc, char **argv)
 	exit(1);
     }
     noffFileName = argv[2];
-    
+
 /* Read in the file header and check the magic number. */
     ReadStruct(fdIn,fileh);
     fileh.f_magic = ShortToHost(fileh.f_magic);
-    fileh.f_nscns = ShortToHost(fileh.f_nscns); 
+    fileh.f_nscns = ShortToHost(fileh.f_nscns);
     if (fileh.f_magic != MIPSELMAGIC) {
 	fprintf(stderr, "File is not a MIPSEL COFF file\n");
         unlink(noffFileName);
 	exit(1);
     }
-    
+
 /* Read in the system header and check the magic number */
     ReadStruct(fdIn,systemh);
     systemh.magic = ShortToHost(systemh.magic);
@@ -203,7 +204,7 @@ main (int argc, char **argv)
         unlink(noffFileName);
 	exit(1);
     }
-    
+
 /* Read in the section headers. */
     numsections = fileh.f_nscns;
     printf("numsections %d \n",numsections);
@@ -237,7 +238,7 @@ main (int argc, char **argv)
 	      sections[i].s_name, sections[i].s_scnptr,
 	      sections[i].s_paddr, sections[i].s_size);
 	if (sections[i].s_size == 0) {
-		/* do nothing! */	
+		/* do nothing! */
 	} else if (!strcmp(sections[i].s_name, ".text")) {
 	    noffH.code.virtualAddr = sections[i].s_paddr;
 	    noffH.code.inFileAddr = inNoffFile;
@@ -273,7 +274,7 @@ main (int argc, char **argv)
 	    inNoffFile += sections[i].s_size;
 #endif
 	} else if (!strcmp(sections[i].s_name, ".bss")){
-  	    /* need to check if we have both .bss and .sbss -- make sure they 
+  	    /* need to check if we have both .bss and .sbss -- make sure they
 	     * are contiguous
 	     */
 	    if (noffH.uninitData.size != 0) {
@@ -300,7 +301,7 @@ main (int argc, char **argv)
     // convert the NOFF header to little-endian before
     // writing it to the file
     SwapHeader(&noffH);
-    
+
     Write(fdOut, (char *)&noffH, sizeof(NoffHeader));
     close(fdIn);
     close(fdOut);

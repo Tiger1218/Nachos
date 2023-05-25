@@ -14,16 +14,17 @@
 #
 #
 # Copyright (c) 1992-1996 The Regents of the University of California.
-# All rights reserved.  See copyright.h for copyright notice and limitation 
+# All rights reserved.  See copyright.h for copyright notice and limitation
 # of liability and disclaimer of warranty provisions.
 #
 #  This file has been modified for use at Waterloo
 #
 # 2003/10/07 rewritten for usage with autoconf
 
-CC=gcc
+CC=/bin/gcc
 CFLAGS= -g -m32 -O2 -DRDATA -DHAVE_CONFIG_H -I@top_dir@
-LD=gcc -m32
+LD=/bin/gcc -m32
+RM=rm
 
 all: coff2noff
 
