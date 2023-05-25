@@ -190,6 +190,8 @@
 # handle unaligned data access.  This fix is enabled by the addition
 # of "-DSIM_FIX" to the DEFINES.  This should be enabled by default
 # and eventually will not require the symbol definition
+#
+#  2023/05/25 Modified for use at Sichuan University
 ################################################################
 DEFINES =  -DFILESYS_STUB -DRDATA -DSIM_FIX -DTUT
 

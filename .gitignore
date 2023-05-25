@@ -34,3 +34,8 @@
 # Apple
 
 ._*
+
+# vim
+
+.*.swp
+.*.swo

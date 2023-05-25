@@ -31,4 +31,4 @@ GCC_VERSION=$(/bin/gcc -dumpversion)
 
 # check if Makefile.dep match the current machine.
 
-[[ $(grep "${GCC_VERSION}" Makefile.dep | wc -l) -lt "500" ]] && make depend
+[[ $(grep -c "${GCC_VERSION}" Makefile.dep) -gt "500" ]] || make depend
