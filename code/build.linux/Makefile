@@ -209,7 +209,7 @@ ASFLAGS = --32
 CPP := /bin/cpp
 CC  := /bin/g++
 LD  := /bin/g++
-AS  := /bin/as --32
+AS  := /bin/as
 RM  := /bin/rm
 ED_EDITOR = /bin/ed
 
@@ -337,7 +337,6 @@ S_OFILES = switch.o
 OFILES = $(C_OFILES) $(S_OFILES)
 
 $(PROGRAM): $(OFILES)
-#	@echo "Here we are"
 	$(LD) $(LDFLAGS) $(OFILES) -o $(PROGRAM)
 
 $(C_OFILES): %.o:
@@ -345,9 +344,9 @@ $(C_OFILES): %.o:
 
 switch.o: ../threads/switch.s
 	$(CPP) $(CPP_AS_FLAGS) -P $(INCPATH) $(HOSTCFLAGS) ../threads/switch.s > swtch.s
-	$(AS) -o switch.o swtch.s
+	$(AS) $(ASFLAGS) -o switch.o swtch.s
 
-depend: $(CFILES) $(HFILES) /bin/ed
+depend: $(CFILES) $(HFILES) $(ED_EDITOR)
 	$(CC) $(INCPATH) $(DEFINES) $(HOSTCFLAGS) -DCHANGED -M $(CFILES) > makedep
 	@echo '/^# DO NOT DELETE THIS LINE/+2,$$d' >eddep
 	@echo '$$r makedep' >>eddep
